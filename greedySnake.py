@@ -28,6 +28,11 @@ def draw_snake(positions,color,unit):
     for pos in positions:
         pygame.draw.rect(gameDisplay,color,[pos[0],pos[1],unit,unit])
 
+def eaten(count):
+    eatenFont=pygame.font.SysFont(None,25)
+    eatenText=eatenFont.render('Berries Eaten:'+str(count),True,red)
+    gameDisplay.blit(eatenText,(0,0))
+
 def text_object(text,font_name,font_size,font_color):
     largeText=pygame.font.Font(font_name,font_size)
     textSurface=largeText.render(text,True,font_color)
@@ -49,8 +54,8 @@ def game_loop():
     
     direction='right'
     snake=[(10*unit,10*unit),(9*unit,10*unit),(8*unit,10*unit),(7*unit,10*unit)]
-    berry=[random.randrange(0,int(display_width/unit))*20,random.randrange(0,int(display_height/unit))*20]
-
+    berry=[random.randrange(11,int(display_width/unit))*unit,random.randrange(0,int(display_height/unit))*unit]
+    berry_numer=0
     
     exitGame=False
 
@@ -67,43 +72,55 @@ def game_loop():
                     direction='up'
                 elif event.key==pygame.K_DOWN and not direction == 'up':
                     direction='down'
+            if event.type==pygame.KEYUP:
+                pass
             #print(event)
         gameDisplay.fill(white)
         
         draw_snake(snake,black,unit)
         draw_berry(berry,red,unit)
+        eaten(berry_numer)
     
         # snake move and eat berry to grow
         if direction=='right':
             snake.insert(0,(snake[0][0]+unit,snake[0][1]))
             if snake[0][0]==berry[0] and snake[0][1]==berry[1]:
                 berry=[random.randrange(0,int(display_width/unit))*20,random.randrange(0,int(display_height/unit))*20]
+                berry_numer+=1
             else:
                 snake.pop()
         if direction=='left':
             snake.insert(0,(snake[0][0]-unit,snake[0][1]))
             if snake[0][0]==berry[0] and snake[0][1]==berry[1]:
                 berry=[random.randrange(0,int(display_width/unit))*20,random.randrange(0,int(display_height/unit))*20]
+                berry_numer+=1
             else:
                 snake.pop()
         if direction=='up':
             snake.insert(0,(snake[0][0],snake[0][1]-unit))
             if snake[0][0]==berry[0] and snake[0][1]==berry[1]:
                 berry=[random.randrange(0,int(display_width/unit))*20,random.randrange(0,int(display_height/unit))*20]
+                berry_numer+=1
             else:
                 snake.pop()
         if direction=='down':
             snake.insert(0,(snake[0][0],snake[0][1]+unit))
             if snake[0][0]==berry[0] and snake[0][1]==berry[1]:
                 berry=[random.randrange(0,int(display_width/unit))*20,random.randrange(0,int(display_height/unit))*20]
+                berry_numer+=1
             else:
                 snake.pop()
+        while (berry[0],berry[1]) in snake:
+            berry=[random.randrange(0,int(display_width/unit))*20,random.randrange(0,int(display_height/unit))*20]
         # crash handling
         if snake[0][0]==0-unit or snake[0][0]==display_width+unit or snake[0][1]==0-unit or snake[0][1]==display_height+unit:
             crash()
+            break
+        if snake[0] in snake[1:]:
+            crash()
+            break
         pygame.display.update()
         clock.tick(4)
-
 game_loop()
 pygame.quit()
 quit()
